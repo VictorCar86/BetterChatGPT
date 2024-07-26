@@ -18,25 +18,30 @@ const useSubmit = () => {
   const generating = useStore((state) => state.generating);
   const currentChatIndex = useStore((state) => state.currentChatIndex);
   const setChats = useStore((state) => state.setChats);
+  const setFetching = useStore((state) => state.setFetching);
 
   const generateTitle = async (
     message: MessageInterface[]
   ): Promise<string> => {
     let data;
     try {
+
+      setFetching(true);
+
       if (!apiKey || apiKey.length === 0) {
         // official endpoint
         if (apiEndpoint === officialAPIEndpoint) {
+          setFetching(false);
           throw new Error(t('noApiKeyWarning') as string);
         }
-
         // other endpoints
         data = await getChatCompletion(
           useStore.getState().apiEndpoint,
           message,
           _defaultChatConfig
         );
-      } else if (apiKey) {
+      }
+      else if (apiKey) {
         // own apikey
         data = await getChatCompletion(
           useStore.getState().apiEndpoint,
@@ -45,6 +50,9 @@ const useSubmit = () => {
           apiKey
         );
       }
+
+      setFetching(false);
+
     } catch (error: unknown) {
       throw new Error(`Error generating title!\n${(error as Error).message}`);
     }
@@ -77,10 +85,13 @@ const useSubmit = () => {
       );
       if (messages.length === 0) throw new Error('Message exceed max token!');
 
+      setFetching(true);
+
       // no api key (free)
       if (!apiKey || apiKey.length === 0) {
         // official endpoint
         if (apiEndpoint === officialAPIEndpoint) {
+          setFetching(false);
           throw new Error(t('noApiKeyWarning') as string);
         }
 
@@ -90,7 +101,8 @@ const useSubmit = () => {
           messages,
           chats[currentChatIndex].config
         );
-      } else if (apiKey) {
+      }
+      else if (apiKey) {
         // own apikey
         stream = await getChatCompletionStream(
           useStore.getState().apiEndpoint,
@@ -99,6 +111,8 @@ const useSubmit = () => {
           apiKey
         );
       }
+
+      setFetching(false);
 
       if (stream) {
         if (stream.locked)
@@ -197,8 +211,8 @@ const useSubmit = () => {
         }
       }
     } catch (e: unknown) {
+      console.error(e);
       const err = (e as Error).message;
-      console.log(err);
       setError(err);
     }
     setGenerating(false);

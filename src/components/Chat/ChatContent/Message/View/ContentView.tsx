@@ -56,6 +56,8 @@ const ContentView = memo(
     );
     const inlineLatex = useStore((state) => state.inlineLatex);
     const markdownMode = useStore((state) => state.markdownMode);
+    const fetching = useStore((state) => state.fetching);
+    const generating = useStore((state) => state.generating);
 
     const handleDelete = () => {
       const updatedChats: ChatInterface[] = JSON.parse(
@@ -106,6 +108,7 @@ const ContentView = memo(
     return (
       <>
         <div className='markdown prose w-full md:max-w-full break-words dark:prose-invert dark share-gpt-message'>
+
           {markdownMode ? (
             <ReactMarkdown
               remarkPlugins={[
@@ -124,21 +127,26 @@ const ContentView = memo(
                 ],
               ]}
               linkTarget='_new'
-              components={{
-                code,
-                p,
-              }}
+              components={{ code, p }}
             >
               {content}
             </ReactMarkdown>
           ) : (
             <span className='whitespace-pre-wrap'>{content}</span>
           )}
+
+          {/* Loading indicator */}
+
+          {messageIndex === lastMessageIndex && (fetching || generating) ? (
+            <div className={`inline-block h-[18px] w-1.5 ${!fetching && 'ml-0.5'} translate-y-0.5 bg-gray-300 animate-[pulse_0.7s_ease-in-out_infinite]`}></div>
+          ) : null}
+
         </div>
+
         <div className='flex justify-end gap-2 w-full mt-2'>
           {isDelete || (
             <>
-              {!useStore.getState().generating &&
+              {!generating &&
                 role === 'assistant' &&
                 messageIndex === lastMessageIndex && (
                   <RefreshButton onClick={handleRefresh} />

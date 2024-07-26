@@ -1,4 +1,5 @@
-import { StoreApi, create } from 'zustand';
+import { StoreApi } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';
 import { persist } from 'zustand/middleware';
 import { ChatSlice, createChatSlice } from './chat-slice';
 import { InputSlice, createInputSlice } from './input-slice';
@@ -61,7 +62,7 @@ export const createPartializedState = (state: StoreState) => ({
   countTotalTokens: state.countTotalTokens,
 });
 
-const useStore = create<StoreState>()(
+const useStore = createWithEqualityFn<StoreState>()(
   persist(
     (set, get) => ({
       ...createChatSlice(set, get),

@@ -5,12 +5,14 @@ export interface ChatSlice {
   messages: MessageInterface[];
   chats?: ChatInterface[];
   currentChatIndex: number;
+  fetching: boolean;
   generating: boolean;
   error: string;
   folders: FolderCollection;
   setMessages: (messages: MessageInterface[]) => void;
   setChats: (chats: ChatInterface[]) => void;
   setCurrentChatIndex: (currentChatIndex: number) => void;
+  setFetching: (fetching: boolean) => void;
   setGenerating: (generating: boolean) => void;
   setError: (error: string) => void;
   setFolders: (folders: FolderCollection) => void;
@@ -19,6 +21,7 @@ export interface ChatSlice {
 export const createChatSlice: StoreSlice<ChatSlice> = (set, get) => ({
   messages: [],
   currentChatIndex: -1,
+  fetching: false,
   generating: false,
   error: '',
   folders: {},
@@ -39,6 +42,12 @@ export const createChatSlice: StoreSlice<ChatSlice> = (set, get) => ({
       ...prev,
       currentChatIndex: currentChatIndex,
     }));
+  },
+  setFetching: (fetching: boolean) => {
+    set((prev: ChatSlice) => ({
+      ...prev,
+      fetching: fetching,
+    }))
   },
   setGenerating: (generating: boolean) => {
     set((prev: ChatSlice) => ({
